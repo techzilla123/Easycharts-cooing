@@ -1,5 +1,28 @@
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
+import { useState } from "react";
+const payWithPaystack = (email) => {
+  if (!email) return;
+
+  const handler = window.PaystackPop.setup({
+    key: "pk_test_42ca42e8f04f14aa591085a834a030351311870c",
+    email: email,
+    amount: 7000 * 100,
+    currency: "NGN",
+    ref: "REF-" + Date.now(),
+
+    callback: function (response) {
+      console.log("Payment Successful! Reference:", response.reference);
+    },
+
+    onClose: function () {
+      console.log("Payment window closed.");
+    },
+  });
+
+  handler.openIframe();
+};
+
 
 const pictures = [
   "DSC00680",
@@ -41,25 +64,41 @@ pages.push({
 
 export const UI = () => {
   const [page, setPage] = useAtom(pageAtom);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+const [customerEmail, setCustomerEmail] = useState("");
+const isValidEmail = (email) => {
+  return /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/.test(email);
+};
+
+
+
 
   useEffect(() => {
     const audio = new Audio("/audios/page-flip-01a.mp3");
     audio.play();
   }, [page]);
 
+   useEffect(() => {
+  const script = document.createElement("script");
+  script.src = "https://js.paystack.co/v1/inline.js";
+  script.async = true;
+  document.body.appendChild(script);
+}, []);
+
+
   return (
     <>
       <main className=" pointer-events-none select-none z-10 fixed  inset-0  flex justify-between flex-col">
         <a
           className="pointer-events-auto mt-10 ml-10"
-          href="https://lessons.wawasensei.dev/courses/react-three-fiber"
+          href="/"
         >
           <img className="w-20" src="/images/easy.png" />
         </a>
        <div className="pointer-events-auto mt-10 mr-10 absolute right-0 top-0 flex items-center gap-6">
 
   <a
-    href="#about-author"
+    href="https://mr-raji.vercel.app/"
     className="
       text-white text-xl font-light hover:underline tracking-wide
       max-sm:text-base   /* smaller on mobile */
@@ -69,16 +108,21 @@ export const UI = () => {
   </a>
 
   <a
-    href="#order"
-    className="
-      px-6 py-3 rounded-full border border-white text-white text-lg uppercase tracking-wide 
-      hover:bg-white hover:text-black transition-all duration-300
+  href="#order"
+  onClick={(e) => {
+    e.preventDefault();
+    setShowEmailModal(true);
+  }}
+  className="
+    px-6 py-3 rounded-full border border-white text-white text-lg uppercase tracking-wide 
+    hover:bg-white hover:text-black transition-all duration-300
+    max-sm:px-4 max-sm:py-2 max-sm:text-sm
+  "
+>
+  Order Now
+</a>
 
-      max-sm:px-4 max-sm:py-2 max-sm:text-sm
-    "
-  >
-    Order Now
-  </a>
+
 
 </div>
 
@@ -117,7 +161,7 @@ export const UI = () => {
     <div className="bg-white/0 animate-horizontal-scroll flex items-center gap-8 w-max px-8">
       
       <h1 className="shrink-0 text-white text-10xl font-black ">
-        The Colour Of Silence
+        Cooing Of A Homing Peagen
       </h1>
 
       <h2 className="shrink-0 text-white text-8xl italic font-light">
@@ -129,7 +173,7 @@ export const UI = () => {
       </h2>
 
       <h2 className="shrink-0 text-transparent text-12xl font-bold italic outline-text">
-        The Colour Of Silence
+        Cooing Of A Homing Peagen
       </h2>
 
       <h2 className="shrink-0 text-white text-9xl font-medium">
@@ -141,7 +185,7 @@ export const UI = () => {
       </h2>
 
       <h2 className="shrink-0 text-white text-13xl font-bold">
-        The Colour Of Silence
+        Cooing Of A Homing Peagen
       </h2>
 
       <h2 className="shrink-0 text-transparent text-13xl font-bold outline-text italic">
@@ -153,7 +197,7 @@ export const UI = () => {
     <div className="absolute top-0 left-0 bg-white/0 animate-horizontal-scroll-2 flex items-center gap-8 px-8 w-max">
       
       <h1 className="shrink-0 text-white text-10xl font-black ">
-        The Colour Of Silence
+        Cooing Of A Homing Peagen
       </h1>
 
       <h2 className="shrink-0 text-white text-8xl italic font-light">
@@ -165,7 +209,7 @@ export const UI = () => {
       </h2>
 
       <h2 className="shrink-0 text-transparent text-12xl font-bold italic outline-text">
-        The Colour Of Silence
+        Cooing Of A Homing Peagen
       </h2>
 
       <h2 className="shrink-0 text-white text-9xl font-medium">
@@ -177,7 +221,7 @@ export const UI = () => {
       </h2>
 
       <h2 className="shrink-0 text-white text-13xl font-bold">
-        The Colour Of Silence
+        Cooing Of A Homing Peagen
       </h2>
 
       <h2 className="shrink-0 text-transparent text-13xl font-bold outline-text italic">
@@ -187,6 +231,55 @@ export const UI = () => {
     </div>
   </div>
 </div>
+{showEmailModal && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[999]">
+    <div className="bg-white text-black rounded-2xl p-8 w-[90%] max-w-md shadow-xl">
+
+      <h2 className="text-2xl font-semibold mb-4 text-center">
+        Enter Your Email
+      </h2>
+
+      <input
+        type="email"
+        placeholder="you@example.com"
+        value={customerEmail}
+        onChange={(e) => setCustomerEmail(e.target.value)}
+        className="w-full border border-gray-300 rounded-lg px-4 py-3 mb-6"
+      />
+
+      <div className="flex justify-between gap-4">
+        <button
+          className="flex-1 bg-gray-300 text-black py-3 rounded-lg"
+          onClick={() => {
+            setCustomerEmail("");
+            setShowEmailModal(false);
+          }}
+        >
+          Cancel
+        </button>
+
+     <button
+  className={`flex-1 py-3 rounded-lg text-white 
+    ${isValidEmail(customerEmail) 
+      ? "bg-green-600 hover:bg-green-700" 
+      : "bg-gray-400 cursor-not-allowed"}`}
+  disabled={!isValidEmail(customerEmail)}
+  onClick={() => {
+    if (!isValidEmail(customerEmail)) return;
+    setShowEmailModal(false);
+    payWithPaystack(customerEmail);
+  }}
+>
+  Continue
+</button>
+
+
+
+      </div>
+
+    </div>
+  </div>
+)}
 
     </>
   );
